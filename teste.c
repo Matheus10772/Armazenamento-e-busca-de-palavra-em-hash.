@@ -9,7 +9,7 @@ hash* criarhash(hash* newhash,int tamanhohash){
 void inicializarvalores(hash* hash1, int tamanhohash){
 	for (int i = 0; i < tamanhohash; i++) {
 		(*(hash1+i)).c = NULL;
-		(*(hash1+i)).prox = NULL;
+		(*(hash1+i)).prox = 0;
 	}
 }
 
@@ -90,11 +90,12 @@ FILE* abrirarquivo(char arqname[]){
 }
 
 int valormodhash(char* palavra, int tamanhomodhash, int palavratamanho){
-    int temp;
+	int temp;
     int soma = 0;
+	char* palavraaux = palavra;
     for(int i = 0; i < palavratamanho; i++){
 
-        temp = (int)palavra[i];
+        temp = (int)palavraaux[i];
         soma = soma + temp;
 		printf("\nSoma: %d", soma);
     }
@@ -104,43 +105,39 @@ int valormodhash(char* palavra, int tamanhomodhash, int palavratamanho){
     return modhash; 
 }
 
-rvetor* consultarlinha(char* palavraprocurar, int tamanhohash, hash* hash1){
+rvetor* consultarlinha(char* palavra, int tamanhohash, hash* hash1){
 	int MAX_TAM = 5;
 	int indicerv = 0;
     rvetor* rvetor1 = malloc(sizeof(rvetor)*MAX_TAM);
 	if (hash1 != NULL) {
 		printf("\nEntrei no if");
-		//char palavraprocurar[47];
+		char palavraprocurar[47];
 		char palavrastruct[47];
 		int indice = 0;
 		int posicaopalavra = 1;
 		hash* aux;
-		while (palavraprocurar[indice] != '\0')
+		while (palavra[indice] != '\0')
 		{
+			palavraprocurar[indice] = palavra[indice];
 			indice++;
 			printf("\n1º while");
 		}
-		printf("\nTamanhohash: %d. Tamanho da palavra: %d", tamanhohash, indice);
-		getchar();
-		int modhash = valormodhash(palavraprocurar, tamanhohash, indice);
-		//printf("\n%d modhash", modhash);
+		int modhash = valormodhash(palavra, tamanhohash, indice);
 		aux = &hash1[modhash];
 		do
 		{
+			printf("\nAqui oh");
 			indice = 0;
 			while (aux->c[indice] != '\0')
 			{
 				palavrastruct[indice] = aux->c[indice];
 				indice++;
-				printf("\n2º while letra %c", aux->c[indice]);
 			}
 			palavrastruct[indice] = '\0';
-			printf("\n%s palavra struct", palavrastruct);
 			if (strcmp(palavraprocurar, palavrastruct) == 0) {
 				if (indicerv > MAX_TAM) {
 					MAX_TAM = MAX_TAM * 2;
 					rvetor1 = realloc(rvetor1,sizeof(rvetor)*MAX_TAM);
-					//inicializarrvetor(rvetor1, MAX_TAM);
 				}
 				(*(rvetor1 + indicerv)).linha = aux->linha;
 				printf("\nconsult linha %d", (*(rvetor1 + indicerv)).linha);
@@ -149,9 +146,9 @@ rvetor* consultarlinha(char* palavraprocurar, int tamanhohash, hash* hash1){
 			}
 			aux = aux->prox;
 			indicerv++;
-		} while (aux->prox != NULL);
+			printf("\n%d próximo da struct", aux->prox);
+		} while ((*aux).prox != 0);
 	}
 	(*(rvetor1 + 0)).indicerv = indicerv;
 	return rvetor1;
-		
 }

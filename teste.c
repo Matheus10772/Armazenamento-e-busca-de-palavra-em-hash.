@@ -2,68 +2,89 @@
 
 hash* criarhash(hash* newhash,int tamanhohash){
     newhash = (hash*)malloc(sizeof(hash)*tamanhohash);
+	inicializarvalores(newhash, tamanhohash);
     return newhash;
 }
 
-void inserirnahash(FILE* arq,hash* hash1,int tamanhohash){
+void inicializarvalores(hash* hash1, int tamanhohash){
+	for (int i = 0; i < tamanhohash; i++) {
+		(*(hash1+i)).c = NULL;
+		(*(hash1+i)).prox = NULL;
+	}
+}
+
+void processararquivo(FILE* arq,hash* hash1,int tamanhohash){
     if(hash1 != NULL){
         char temp;
-        char* palavra = (char*)malloc(sizeof(char)*5);
         int MAX_TAM = 5;
+        char* palavra = malloc(sizeof(char)*MAX_TAM);
         int linha = 0;
         int indice = 0;
-        hash* aux;
-        int mod;
         while (!feof(arq))
         {
             temp = fgetc(arq);
-            if((temp>'a' && temp<'z') || (temp>'A' && temp<'Z')){
+			/*printf("\n caracter: %c\n", temp);
+			system("pause");*/
+            if((temp >= 97 && temp <= 122) || (temp >= 65 && temp <= 90)){
                 if(indice < MAX_TAM){
                 palavra[indice] = temp;
-                indice++;
                 }
                 else{
-                    palavra = (char*)realloc(palavra,sizeof(char)*5);
+					MAX_TAM = MAX_TAM * 2;
+                    palavra = realloc(palavra,sizeof(char)*MAX_TAM);
                     palavra[indice] = temp;
-                    indice++;
-                    MAX_TAM = MAX_TAM + 5;
-
                 }
-
-            }
-            else if(temp == ' '){
-                mod = valormodhash(palavra,tamanhohash, indice);
-                while((*hash1).c != NULL){
-                    (*hash1).prox = (hash*)malloc(sizeof(hash));
-                    hash1 = hash1->prox;
-                }
-                (*hash1).c = (char*)malloc(sizeof(char)*indice);
-                /*for(int j=0;j<indice;j++){
-                    hash1->(c[j]) = palavra[j];
-                }*/
-                (*hash1).c = palavra;
                 indice++;
-                (*hash1).tamanhopalavra = indice;
-                (*hash1).linha = linha;
-                free(palavra);
-                MAX_TAM = 5;
-                indice = 0;
-                palavra = (char*)malloc(sizeof(char)*5);
             }
-            else if(temp == '\n'){
-                linha++;
+            else if(isspace(temp)){
+				if (temp == '\n') {
+					linha++;
+				}
+				palavra[indice] = '\0';
+				if(palavra[0] != '\0')
+					inserirnahash(arq, hash1, tamanhohash, indice, palavra, linha);
+				free(palavra);
+				MAX_TAM = 5;
+				indice = 0;
+				palavra = malloc(sizeof(char) * MAX_TAM);
             }
         }
+		inserirnahash(arq, hash1, tamanhohash, indice, palavra, linha);
     }
     else{
         printf("\nNão existe uma hash ainda. Crie uma nova.\n");
     }
 }
 
+void inserirnahash(FILE* arq, hash* hash1,int tamanhohash, int indice, char* palavra, int linha)
+{
+	int mod;
+	printf("\n%s\n", palavra);
+	//system("pause");
+	getchar();
+	mod = valormodhash(palavra, tamanhohash, indice);
+	hash* aux = hash1;
+	while (aux[mod].c != NULL) {
+		aux[mod].prox = (hash*)malloc(sizeof(hash));
+		aux = aux[mod].prox;
+	}
+	aux->c = malloc(sizeof(char) * indice);
+	for (int j = 0; j <= indice ; j++) {
+		aux->c[j] = palavra[j];
+	}
+	printf("\n%s bonitinho", aux->c);
+	//system("pause");
+	getchar();
+	aux->tamanhopalavra = indice + 1;
+	aux->linha = linha + 1;
+	printf("\nlinha %d bonitinho", aux->linha);
+	getchar();
+}
+
 FILE* abrirarquivo(char arqname[]){
     FILE* arq = fopen(arqname, "r+");
     if(arq == NULL){
-        printf("\nErro ao abrir o arquivo. Falha ao acessar o arquivo. Pode estar sem permissão de acesso ou o arquivo ser inexistente\n");
+        printf("\nFalha ao acessar o arquivo. Pode estar sem permissão de acesso ou o arquivo ser inexistente\n");
     }
     return arq;
 }
@@ -71,58 +92,66 @@ FILE* abrirarquivo(char arqname[]){
 int valormodhash(char* palavra, int tamanhomodhash, int palavratamanho){
     int temp;
     int soma = 0;
-    for(int i=0;i<palavratamanho;i++){
+    for(int i = 0; i < palavratamanho; i++){
+
         temp = (int)palavra[i];
         soma = soma + temp;
+		printf("\nSoma: %d", soma);
     }
-    int modhash = soma/tamanhomodhash;
-    return modhash;
+	printf("\ntamanhohash: %d", tamanhomodhash);
+    int modhash = (soma%tamanhomodhash);
+	printf("\n%d valor modhash", modhash);
+    return modhash; 
 }
 
-rvetor* consultarlinha(char* palavra, int tamanhohash, hash* hash1){
-        rvetor* rvetor1 = (rvetor*)malloc(sizeof(rvetor)*2);
-        char palavraprocurar[47];
-        strcpy(palavraprocurar,palavra);
-    if(hash1 != NULL){
-        int palavratamanho;
-        int i = 0;
-        int MAX_TAM = 2;
-        int indice = 0;
-        while(palavra[i] != '\0'){
-            palavratamanho++;
-            i++;
-        }
-        int mod = valormodhash(palavra,tamanhohash,palavratamanho);
-        hash aux = hash1[mod];
-        int linha = aux.linha;
-        int posicaopalavra = 0;
-        if((strcmp((aux.c),palavraprocurar)) == 1){
-        rvetor1[indice].posicaopalavra = posicaopalavra;
-        rvetor1[indice].linha = linha;
-        indice++;
-        }
-        posicaopalavra++;
-        while(((*hash1).prox) != NULL){
-            hash1 = (*hash1).prox;
-            aux = *hash1;
-            linha = aux.linha;
-            if(indice>MAX_TAM){
-                rvetor1 = (rvetor*)realloc(rvetor1,sizeof(int)*2);
-                MAX_TAM = MAX_TAM + 2;
-            }
-            if((strcmp((aux.c),palavraprocurar)) == 1){
-            rvetor1[indice].linha = linha;
-            rvetor1[indice].posicaopalavra = posicaopalavra;
-            indice++; 
-            }
-            posicaopalavra++;
-        }
-    }
-    else
-    {
-        printf("\nNão existe hash\n");
-        return NULL;
-    }
-    
-    return rvetor1;
+rvetor* consultarlinha(char* palavraprocurar, int tamanhohash, hash* hash1){
+	int MAX_TAM = 5;
+	int indicerv = 0;
+    rvetor* rvetor1 = malloc(sizeof(rvetor)*MAX_TAM);
+	if (hash1 != NULL) {
+		printf("\nEntrei no if");
+		//char palavraprocurar[47];
+		char palavrastruct[47];
+		int indice = 0;
+		int posicaopalavra = 1;
+		hash* aux;
+		while (palavraprocurar[indice] != '\0')
+		{
+			indice++;
+			printf("\n1º while");
+		}
+		printf("\nTamanhohash: %d. Tamanho da palavra: %d", tamanhohash, indice);
+		getchar();
+		int modhash = valormodhash(palavraprocurar, tamanhohash, indice);
+		//printf("\n%d modhash", modhash);
+		aux = &hash1[modhash];
+		do
+		{
+			indice = 0;
+			while (aux->c[indice] != '\0')
+			{
+				palavrastruct[indice] = aux->c[indice];
+				indice++;
+				printf("\n2º while letra %c", aux->c[indice]);
+			}
+			palavrastruct[indice] = '\0';
+			printf("\n%s palavra struct", palavrastruct);
+			if (strcmp(palavraprocurar, palavrastruct) == 0) {
+				if (indicerv > MAX_TAM) {
+					MAX_TAM = MAX_TAM * 2;
+					rvetor1 = realloc(rvetor1,sizeof(rvetor)*MAX_TAM);
+					//inicializarrvetor(rvetor1, MAX_TAM);
+				}
+				(*(rvetor1 + indicerv)).linha = aux->linha;
+				printf("\nconsult linha %d", (*(rvetor1 + indicerv)).linha);
+				(*(rvetor1 + indicerv)).posicaopalavra = posicaopalavra;
+				posicaopalavra++;
+			}
+			aux = aux->prox;
+			indicerv++;
+		} while (aux->prox != NULL);
+	}
+	(*(rvetor1 + 0)).indicerv = indicerv;
+	return rvetor1;
+		
 }

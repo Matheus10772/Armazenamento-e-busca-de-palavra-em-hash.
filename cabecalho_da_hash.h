@@ -20,10 +20,11 @@ typedef struct
 
 
 hash* criarhash(hash* newhash, int tamanhohash);
-void processararquivo(FILE* arq,hash* hash1, int tamanhohash);
-void inserirnahash(FILE* arq, hash* hash1,int tamanhohash, int indice, char* palavra, int linha);
+hash* processararquivo(FILE* arq,hash* hash1, int tamanhohash);
+hash* inserirnahash(FILE* arq, hash* hash1,int tamanhohash, int indice, char* palavra, int linha);
 FILE* abrirarquivo(char arqnome[]);
 void inicializarvalores(hash *hash1, int tamanhohash);
 void inicializarrvetor(rvetor* rvetor1, int tamanho);
 int valormodhash(char* palavra, int tamanhohash, int palavratamanho);
 void consultarlinha(char* palavraprocurar, int tamanhohash, hash* hash1);
+void imprimirtudo(hash* hash1, int tamanhohash);

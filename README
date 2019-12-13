@@ -1,0 +1,14 @@
+Para usar o programa é bem simples:
+1º passo: Abra um terminal no diretório dos arquivos de código fonte
+2º passo: digite os comandos, gcc -c funcao_da_hash.c, gcc -c Interface_de_usuario.c, gcc -o hash.exe funcao_da_hash.o Interface_de_usuario.o
+3º passo: digite ./hash.exe no terminal.
+
+Pronto, programa estará em execução.
+
+O menu apresenta as informações relevantes necessárias.
+
+opção 1: cria uma nova hash, necessário para o funcionamento do programa
+opção 2: abre o arquivo .txt desejado
+opção 3: coloca palavra por palavra do arquivo na hash.
+opção 4: consulta as informações da palavra desejada.
+opção 5: imprimi tudo que está na hash
